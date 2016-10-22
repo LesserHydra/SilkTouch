@@ -1,0 +1,12 @@
+name: SilkTouch
+main: @mainClass@
+version: @version@
+author: Roboboy
+
+commands:
+  SilkTouch:
+    aliases: [silk, st]
+    description: Main command for SilkTouch
+    usage: /<command> <reload>
+    permission: silktouch.maincommand
+    permissions message: You don't have <permission>
