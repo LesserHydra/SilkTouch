@@ -1,6 +1,7 @@
 package com.lesserhydra.silktouch;
 
 import com.lesserhydra.bukkitutil.TileEntityUtil;
+import com.lesserhydra.bukkitutil.TileEntityWrapper;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
@@ -17,7 +18,9 @@ import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.Arrays;
 import java.util.EnumSet;
+import java.util.stream.Collectors;
 
 public class SilkTouch extends JavaPlugin implements Listener {
 	
@@ -51,7 +54,11 @@ public class SilkTouch extends JavaPlugin implements Listener {
 		if (placedItem.getType() != Material.MOB_SPAWNER) return;
 		
 		BlockStateMeta itemMeta = (BlockStateMeta) placedItem.getItemMeta();
-		TileEntityUtil.setTileEntity(event.getBlockPlaced(), itemMeta);
+		TileEntityWrapper tile = TileEntityUtil.getTileEntity(itemMeta);
+		assert tile != null;
+		CreatureSpawner spawner = (CreatureSpawner) event.getBlockPlaced().getState();
+		tile.copyTo(spawner);
+		spawner.update();
 	}
 	
 	private static boolean isSilktouchPick(ItemStack item) {
@@ -75,12 +82,22 @@ public class SilkTouch extends JavaPlugin implements Listener {
 		
 		CreatureSpawner spawner = (CreatureSpawner) block.getState();
 		spawner.setDelay(-1);
+		TileEntityWrapper tile = TileEntityUtil.getTileEntity(spawner);
 		
-		meta.setDisplayName(ChatColor.BOLD.toString() + ChatColor.GRAY.toString() + spawner.getCreatureTypeName() + " Spawner");
-		TileEntityUtil.setTileEntity((BlockStateMeta) meta, block);
+		String creatureName = determineName(spawner.getSpawnedType().name().toLowerCase());
+		meta.setDisplayName(ChatColor.RESET + creatureName + " Spawner");
+		
+		tile.copyTo((BlockStateMeta) meta);
 		spawnerItem.setItemMeta(meta);
 		
 		return spawnerItem;
+	}
+
+	private static String determineName(String identifier) {
+		return Arrays.stream(identifier.split("_"))
+				.filter(str -> str.length() > 0)
+                .map(str -> Character.toUpperCase(str.charAt(0)) + str.substring(1))
+				.collect(Collectors.joining(" "));
 	}
 
 }
