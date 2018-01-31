@@ -2,6 +2,8 @@ package com.lesserhydra.silktouch;
 
 import com.lesserhydra.bukkitutil.TileEntityUtil;
 import com.lesserhydra.bukkitutil.TileEntityWrapper;
+import com.lesserhydra.hydracore.HydraCore;
+import com.lesserhydra.util.Version;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
@@ -24,10 +26,31 @@ import java.util.stream.Collectors;
 
 public class SilkTouch extends JavaPlugin implements Listener {
 	
+	private static final int CORE_MAJOR = 1;
+	private static final int CORE_MINOR = 0;
+	
 	private EnumSet<Material> enabledTypes = EnumSet.of(Material.MONSTER_EGGS, Material.MOB_SPAWNER);
 	
 	@Override
 	public void onEnable() {
+		assert HydraCore.isLoaded();
+		Version.Compat coreCompat = HydraCore.expectVersion(CORE_MAJOR, CORE_MINOR);
+		if (coreCompat != Version.Compat.MATCH) {
+			if (coreCompat.isOutdated()) {
+				getLogger().severe("The loaded version of HydraCore is outdated! Please update to "
+						+ CORE_MAJOR + "." + CORE_MINOR + "+.");
+				//TODO: Link
+			}
+			else {
+				getLogger().severe("The loaded version of HydraCore is incompatible with this " +
+						"version of SilkTouch. Please update SilkTouch or downgrade HydraCore to "
+						+ CORE_MAJOR + "." + CORE_MINOR + "+.");
+				//TODO: Links
+			}
+			getPluginLoader().disablePlugin(this);
+			return;
+		}
+		
 		getServer().getPluginManager().registerEvents(this, this);
 	}
 	
