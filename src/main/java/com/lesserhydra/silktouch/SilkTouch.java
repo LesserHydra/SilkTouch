@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 
 public class SilkTouch extends JavaPlugin implements Listener {
 	
-	private static final int CORE_MAJOR = 1;
+	private static final int CORE_MAJOR = 2;
 	private static final int CORE_MINOR = 0;
 	
 	private EnumSet<Material> enabledTypes = EnumSet.of(Material.MONSTER_EGGS, Material.MOB_SPAWNER);
